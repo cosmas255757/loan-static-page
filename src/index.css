@@ -1,0 +1,211 @@
+/* ==========================================================================
+   1. CORE GLOBAL STYLING & RESPONSIVE CSS VARIABLES
+   ========================================================================== */
+:root {
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  /* Color Palette Configuration */
+  --bg-main: #f4f6f9;
+  --bg-card: #ffffff;
+  --text-dark: #2d3748;
+  --text-muted: #718096;
+  --border-color: #e2e8f0;
+  
+  --primary: #007bff;
+  --success: #28a745;
+  --info: #17a2b8;
+  --danger: #dc3545;
+  --warning: #ffc107;
+  
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   2. FLEXIBLE APP LAYOUT WRAPPERS & SHELLS
+   ========================================================================== */
+header {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Flexbox responsive header menu */
+header nav {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding: 15px !important;
+  }
+  header nav {
+    width: 100%;
+    justify-content: center;
+    gap: 6px !important;
+  }
+  header nav button {
+    flex-grow: 1;
+    font-size: 13px !important;
+    padding: 6px 10px !important;
+  }
+}
+
+/* Main Workspace Box */
+main {
+  width: 100%;
+  padding: 15px !important;
+}
+
+@media (min-width: 768px) {
+  main {
+    padding: 30px !important;
+  }
+}
+
+/* ==========================================================================
+   3. MODERN FORM CONTROLS & UTILITY BUTTONS
+   ========================================================================== */
+input, select, textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  color: var(--text-dark);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+button {
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s ease, filter 0.15s ease;
+  white-space: nowrap;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ==========================================================================
+   4. DEVICE-AGNOSTIC DATA TABLES (SCROLL-SAFE)
+   ========================================================================== */
+/* Prevents layouts from breaking out on smaller smart screens */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 15px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-card);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--border-color);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* ==========================================================================
+   5. AUTO-FLOW STAIR GRID FOR METRICS BOXES
+   ========================================================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+/* Mobile structural overrides for single column form containers */
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   6. RESPONSIVE MODAL DIALOGS OVERLAY SYSTEM
+   ========================================================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.6); /* Modern dark translucent drop */
+  backdrop-filter: blur(4px); /* Sleek backdrop filter blur */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background-color: var(--bg-card);
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
