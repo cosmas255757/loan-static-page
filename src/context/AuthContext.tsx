@@ -3,8 +3,7 @@ import {type LoanOfficer,type AuthContextType } from '../types/loanSystem';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-const API_AUTH_URL = `${API_BASE_URL}/auth`;
+const API_AUTH_URL = 'https://railway.app';
 
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {

@@ -1,7 +1,7 @@
 import {type Applicant,type Loan,type Repayment,type DashboardStats } from '../types/loanSystem';
 
 // Global API Base Address Selector
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL ||'https://railway.app' || 'http://localhost:5000/api';
 
 // Helper shortcut to retrieve token dynamically for secure requests
 const getAuthHeaders = (): Record<string, string> => {
@@ -122,11 +122,10 @@ export const apiService = {
   // DASHBOARD ADVANCED CHRONOLOGICAL STATISTICS
   // ==========================================
   getDashboardMetrics: async (): Promise<DashboardStats> => {
-    // Maps to: GET /api/dashboard
-    const res = await fetch(`${API_BASE_URL}/dashboard`, {
+    // FIXED: Changed endpoint from `${API_BASE_URL}/dashboard` to point to your actual backend geometry
+    const res = await fetch(`${API_BASE_URL}/stats/dashboard`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
     return handleResponse(res);
   }
-};
