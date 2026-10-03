@@ -1,7 +1,7 @@
 import {type Applicant,type Loan,type Repayment,type DashboardStats } from '../types/loanSystem';
 
 // Global API Base Address Selector
-const API_BASE_URL = import.meta.env.VITE_API_URL ||'https://railway.app' || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL ||'https://loan-production-46aa.up.railway.app' || 'http://localhost:5000/api';
 
 // Helper shortcut to retrieve token dynamically for secure requests
 const getAuthHeaders = (): Record<string, string> => {
