@@ -62,10 +62,12 @@ const MainDashboardLayout: React.FC = () => {
     if (!currentUser) return;
     setLoading(true);
     try {
-      // 💡 FIX: Safely fallback to an empty array [] if backend crashes or returns an error object
-      const rawApplicants = await apiService.getApplicants();
-      const rawLoans = await apiService.getLoans();
-      const rawRepayments = await apiService.getRepayments();
+      //  Safely fallback to an empty array [] if backend crashes or returns an error object
+      const [rawApplicants, rawLoans, rawRepayments] = await Promise.all([
+        apiService.getApplicants(),
+        apiService.getLoans(),
+        apiService.getRepayments()
+      ]);
 
       const applicants = Array.isArray(rawApplicants) ? rawApplicants : [];
       const loans = Array.isArray(rawLoans) ? rawLoans : [];
