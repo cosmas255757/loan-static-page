@@ -166,7 +166,6 @@ export const RepaymentsCRUD: React.FC = () => {
               <tbody>
                 {filteredRepayments.map((repayment) => (
                   <tr key={repayment.id} style={{ borderBottom: '1px solid #eee', transition: 'background 0.15s' }}>
-                    <td style={{ padding: '14px 16px', color: '#6c757d' }}>#REC{repayment.id}</td>
                     <td style={{ padding: '14px 16px', fontWeight: '600', color: '#212529' }}>
                       {repayment.applicant_name || `Loan Ref: #${repayment.loan_id}`}
                     </td>
@@ -175,9 +174,6 @@ export const RepaymentsCRUD: React.FC = () => {
                     </td>
                     <td style={{ padding: '14px 16px', color: '#dc3545', fontWeight: '600' }}>
                       TSH {Number(repayment.amount_left).toLocaleString()}
-                    </td>
-                    <td style={{ padding: '14px 16px', color: '#007bff', fontWeight: '500' }}>
-                      Contract #{repayment.loan_id}
                     </td>
                     <td style={{ padding: '14px 16px', color: '#495057' }}>
                       {repayment.payment_date ? repayment.payment_date.split('T')[0] : '—'}
