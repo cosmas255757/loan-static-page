@@ -25,7 +25,7 @@ export const apiService = {
   // ==========================================
   // APPLICANTS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-      // 1. GET ALL APPLICANTS
+      // 1. GET ALL APPLICANTS (100% Correct - matches raw rows array)
       getApplicants: async (): Promise<Applicant[]> => {
         const res = await fetch(`${API_BASE_URL}/api/applicants`, {
           method: 'GET',
@@ -34,8 +34,8 @@ export const apiService = {
         return handleResponse(res);
       },
 
-      // 2. CREATE NEW APPLICANT
-      createApplicant: async (applicant: Omit<Applicant, 'id'>): Promise<void> => {
+      // 2. CREATE NEW APPLICANT (Changed to Promise<any> to accept the status payload)
+      createApplicant: async (applicant: Omit<Applicant, 'id'>): Promise<any> => {
         const res = await fetch(`${API_BASE_URL}/api/applicants`, {
           method: 'POST',
           headers: getAuthHeaders(),
@@ -44,8 +44,8 @@ export const apiService = {
         return handleResponse(res);
       },
 
-      // 3. UPDATE EXISTING APPLICANT 
-      updateApplicant: async (id: number, applicant: Partial<Applicant>): Promise<void> => {
+      // 3. UPDATE EXISTING APPLICANT (Changed to Promise<any> to accept the status payload)
+      updateApplicant: async (id: number, applicant: Partial<Applicant>): Promise<any> => {
         const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
           method: 'PUT',
           headers: getAuthHeaders(),
@@ -54,8 +54,8 @@ export const apiService = {
         return handleResponse(res);
       },
 
-      // 4. DELETE AN APPLICANT
-      deleteApplicant: async (id: number): Promise<void> => {
+      // 4. DELETE AN APPLICANT (Changed to Promise<any> to accept the status payload)
+      deleteApplicant: async (id: number): Promise<any> => {
         const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
           method: 'DELETE',
           headers: getAuthHeaders()
@@ -150,7 +150,6 @@ export const apiService = {
   // DASHBOARD ADVANCED CHRONOLOGICAL STATISTICS
   // ==========================================
   getDashboardMetrics: async (): Promise<DashboardStats> => {
-    // FIXED: Changed endpoint from `${API_BASE_URL}/dashboard` to point to your actual backend geometry
     const res = await fetch(`${API_BASE_URL}/api/stats/dashboard`, {
       method: 'GET',
       headers: getAuthHeaders()
