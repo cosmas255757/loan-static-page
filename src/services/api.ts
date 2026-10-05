@@ -25,40 +25,50 @@ export const apiService = {
   // ==========================================
   // APPLICANTS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-  getApplicants: async (): Promise<Applicant[]> => {
-    // Maps to: GET /api/applicants
-    const res = await fetch(`${API_BASE_URL}/api/applicants`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
-  },
+      // 1. GET ALL APPLICANTS
+      getApplicants: async (): Promise<Applicant[]> => {
+        const res = await fetch(`${API_BASE_URL}/api/applicants`, {
+          method: 'GET',
+          headers: getAuthHeaders()
+        });
+        return handleResponse(res);
+      },
 
-  saveApplicant: async (applicant: Applicant, isEdit: boolean): Promise<void> => {
-    // Maps to: POST /api/applicants OR PUT /api/applicants/:id
-    const url = isEdit ? `${API_BASE_URL}/api/applicants/${applicant.id}` : `${API_BASE_URL}/api/applicants`;
-    const res = await fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(applicant)
-    });
-    return handleResponse(res);
-  },
+      // 2. CREATE NEW APPLICANT
+      createApplicant: async (applicant: Omit<Applicant, 'id'>): Promise<void> => {
+        const res = await fetch(`${API_BASE_URL}/api/applicants`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(applicant)
+        });
+        return handleResponse(res);
+      },
 
-  deleteApplicant: async (id: string): Promise<void> => {
-    // Maps to: DELETE /api/applicants/:id
-    const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
-  },
+      // 3. UPDATE EXISTING APPLICANT 
+      updateApplicant: async (id: number, applicant: Partial<Applicant>): Promise<void> => {
+        const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
+          method: 'PUT',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(applicant)
+        });
+        return handleResponse(res);
+      },
+
+      // 4. DELETE AN APPLICANT
+      deleteApplicant: async (id: number): Promise<void> => {
+        const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
+          method: 'DELETE',
+          headers: getAuthHeaders()
+        });
+        return handleResponse(res);
+      },
 
   // ==========================================
   // LOANS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-  getLoans: async (): Promise<Loan[]> => {
-    // Maps to: GET /api/loans
+
+  // 1. GET ALL LOANS (Unpacks object structure safely)
+  getLoans: async (): Promise<{ count: number; loans: Loan[] }> => {
     const res = await fetch(`${API_BASE_URL}/api/loans`, {
       method: 'GET',
       headers: getAuthHeaders()
@@ -66,19 +76,28 @@ export const apiService = {
     return handleResponse(res);
   },
 
-  saveLoan: async (loan: Loan, isEdit: boolean): Promise<void> => {
-    // Maps to: POST /api/loans OR PUT /api/loans/:id
-    const url = isEdit ? `${API_BASE_URL}/api/loans/${loan.id}` : `${API_BASE_URL}/api/loans`;
-    const res = await fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
+  // 2. DISBURSE A NEW LOAN
+  createLoan: async (loan: { applicant_id: number; amount: number }): Promise<void> => {
+    const res = await fetch(`${API_BASE_URL}/api/loans`, {
+      method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify(loan)
     });
     return handleResponse(res);
   },
 
-  deleteLoan: async (id: string): Promise<void> => {
-    // Maps to: DELETE /api/loans/:id
+  // 3. EDIT OUTSTANDING LOAN CONTRACT
+  updateLoan: async (id: number, loan: { amount: number; status: string }): Promise<void> => {
+    const res = await fetch(`${API_BASE_URL}/api/loans/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(loan)
+    });
+    return handleResponse(res);
+  },
+
+  // 4. DROP LOAN AGREEMENT 
+  deleteLoan: async (id: number): Promise<void> => {
     const res = await fetch(`${API_BASE_URL}/api/loans/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
@@ -89,34 +108,43 @@ export const apiService = {
   // ==========================================
   // REPAYMENTS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-  getRepayments: async (): Promise<Repayment[]> => {
-    // Maps to: GET /api/repayments
-    const res = await fetch(`${API_BASE_URL}/api/repayments`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
-  },
+    // 1. GET ALL REPAYMENTS
+    getRepayments: async (): Promise<{ count: number; repayments: Repayment[] }> => {
+      const res = await fetch(`${API_BASE_URL}/api/repayments`, {
+        method: 'GET',
+        headers: getAuthHeaders()
+      });
+      return handleResponse(res);
+    },
 
-  saveRepayment: async (repayment: Repayment, isEdit: boolean): Promise<void> => {
-    // Maps to: POST /api/repayments OR PUT /api/repayments/:id
-    const url = isEdit ? `${API_BASE_URL}/api/repayments/${repayment.id}` : `${API_BASE_URL}/api/repayments`;
-    const res = await fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(repayment)
-    });
-    return handleResponse(res);
-  },
+    // 2. CREATE A REPAYMENT RECORD
+    createRepayment: async (repayment: { loan_id: number; amount_paid: number; payment_date: string }): Promise<void> => {
+      const res = await fetch(`${API_BASE_URL}/api/repayments`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(repayment)
+      });
+      return handleResponse(res);
+    },
 
-  deleteRepayment: async (id: string): Promise<void> => {
-    // Maps to: DELETE /api/repayments/:id
-    const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
-  },
+    // 3. EDIT REPAYMENT TRANSACTION
+    updateRepayment: async (id: number, repayment: { amount_paid: number; payment_date: string }): Promise<void> => {
+      const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(repayment)
+      });
+      return handleResponse(res);
+    },
+
+    // 4. DROP REPAYMENT LOG
+    deleteRepayment: async (id: number): Promise<void> => {
+      const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      return handleResponse(res);
+    },
 
   // ==========================================
   // DASHBOARD ADVANCED CHRONOLOGICAL STATISTICS

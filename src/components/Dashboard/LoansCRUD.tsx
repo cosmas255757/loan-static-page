@@ -1,38 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import { apiService } from '../../services/api';
 import { type Loan, type Applicant } from '../../types/loanSystem';
 
 export const LoansCRUD: React.FC = () => {
-  const { currentUser } = useAuth();
-
-  // Core component state lists
   const [loans, setLoans] = useState<Loan[]>([]);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Controls form overlay popup state
-  const [searchTerm, setSearchTerm] = useState(''); // Text tracking state for searching loans
 
-  // Form handling input state buffers
-  const [formId, setFormId] = useState('');
-  const [applicantId, setApplicantId] = useState('');
+  // Form Field States
+  const [applicantId, setApplicantId] = useState<number | 'Selected' | ''>('');
   const [amount, setAmount] = useState('');
-  const [interestRate, setInterestRate] = useState('10');
-  const [durationMonths, setDurationMonths] = useState('12');
-  const [status, setStatus] = useState<Loan['status']>('Pending');
+  const [status, setStatus] = useState('active');
+  const [editingId, setEditingId] = useState<number | null>(null);
 
-  // Load contextual master dataset records for active identity logs
   const loadData = async () => {
-    if (!currentUser) return;
     setLoading(true);
     try {
-      const filteredApplicants = await apiService.getApplicants();
-      const filteredLoans = await apiService.getLoans();
-      setApplicants(filteredApplicants);
-      setLoans(filteredLoans);
-    } catch (error) {
-      console.error('Failed to synchronize loan accounts database parameters:', error);
+      // Parallelize calls to maximize performance speed
+      const [loansResponse, applicantsData] = await Promise.all([
+        apiService.getLoans(),
+        apiService.getApplicants()
+      ]);
+
+      // 💡 FIXED: Safely read the array from the backend wrapping envelope { count, loans }
+      if (loansResponse && Array.isArray(loansResponse.loans)) {
+        setLoans(loansResponse.loans);
+      } else if (Array.isArray(loansResponse)) {
+        setLoans(loansResponse);
+      } else {
+        setLoans([]);
+      }
+
+      setApplicants(Array.isArray(applicantsData) ? applicantsData : []);
+    } catch (err) {
+      console.error("Failed executing core synchronization loop:", err);
     } finally {
       setLoading(false);
     }
@@ -40,215 +42,173 @@ export const LoansCRUD: React.FC = () => {
 
   useEffect(() => {
     loadData();
-  }, [currentUser]);
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // 🚀 CRASH-PROOF FILTER ENGINE: Prevents undefined toLowerCase loops
+  const filteredLoans = loans.filter((loan) => {
+    const nameTarget = loan?.applicant_name || '';
+    const statusTarget = loan?.status || '';
+    const cleanSearch = searchTerm.toLowerCase();
+
+    return (
+      nameTarget.toLowerCase().includes(cleanSearch) ||
+      statusTarget.toLowerCase().includes(cleanSearch)
+    );
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser || !applicantId || !amount) return;
+    if (!amount || isNaN(Number(amount))) return alert('Provide a valid numerical amount.');
 
-    const payload: Loan = {
-      id: isEditing ? formId : 'loan_' + Date.now(),
-      officerId: currentUser.id,
-      applicantId,
-      amount: Number(amount),
-      interestRate: Number(interestRate),
-      durationMonths: Number(durationMonths),
-      status,
-      issuedDate: isEditing
-        ? loans.find(l => l.id === formId)?.issuedDate || new Date().toISOString().split('T')[0]
-        : new Date().toISOString().split('T')[0]
-    };
-
-    setLoading(true);
     try {
-       await apiService.saveLoan (payload, isEditing);
+      if (editingId) {
+        await apiService.updateLoan(editingId, {
+          amount: Number(amount),
+          status: status
+        });
+        alert('Loan terms adjusted successfully.');
+      } else {
+        if (!applicantId || applicantId === 'Selected') return alert('Please link an active applicant.');
+        await apiService.createLoan({
+          applicant_id: Number(applicantId),
+          amount: Number(amount)
+        });
+        alert('Disbursement logged into system.');
+      }
       resetForm();
-      await loadData();
-    } catch (error) {
-      console.error('Failed to commit loan entry changes to records:', error);
-      setLoading(false);
+      loadData();
+    } catch (err) {
+      console.error("Write transaction rejected by database instance:", err);
     }
   };
 
-  const handleEditInit = (loan: Loan) => {
-    setIsEditing(true);
-    setFormId(loan.id);
-    setApplicantId(loan.applicantId);
+  const startEdit = (loan: Loan) => {
+    setEditingId(loan.id);
     setAmount(String(loan.amount));
-    setInterestRate(String(loan.interestRate));
-    setDurationMonths(String(loan.durationMonths));
     setStatus(loan.status);
-    setIsModalOpen(true); // Open the overlay dialog populated with parameters
+    setApplicantId(loan.applicant_id || '');
   };
 
-  const handleDelete = async (id: string) => {
-    if (!currentUser || !window.confirm('Voiding this profile deletes all ongoing balance expectations. Proceed?')) return;
-    setLoading(true);
+  const handleDelete = async (id: number) => {
+    if (!window.confirm("Drop this loan contract entirely?")) return;
     try {
       await apiService.deleteLoan(id);
-      await loadData();
-    } catch (error) {
-      console.error('Failed to remove targeted loan ledger allocation profile:', error);
-      setLoading(false);
+      loadData();
+    } catch (err) {
+      console.error("Deletion cycle interrupted:", err);
     }
   };
 
   const resetForm = () => {
-    setIsEditing(false);
-    setFormId('');
-    setApplicantId('');
+    setEditingId(null);
     setAmount('');
-    setInterestRate('10');
-    setDurationMonths('12');
-    setStatus('Pending');
-    setIsModalOpen(false); // Dismiss popup layer safely
+    setStatus('active');
+    setApplicantId('');
   };
 
-  // Live filter utility mapping search inputs against compiled applicant models
-  const filteredLoans = loans.filter(loan => {
-    const borrower = applicants.find(a => a.id === loan.applicantId);
-    if (!borrower) return false;
-    return (
-      borrower.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      borrower.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
-
   return (
-    <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '6px', border: '1px solid #ddd', position: 'relative' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '30px', padding: '10px' }}>
       
-      {/* Top Controller Layout Block: Search and Open Overlay Action Toggle */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', marginBottom: '20px' }}>
-        <input 
-          type="text" 
-          placeholder="Search loans by borrower name or email..." 
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ maxWidth: '400px', padding: '10px 14px', border: '1px solid #ccc', borderRadius: '4px', margin: 0 }}
-        />
-        
-        <button 
-          onClick={() => { resetForm(); setIsModalOpen(true); }}
-          style={{ padding: '10px 18px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}
-        >
-          <span style={{ fontSize: '18px', lineHeight: '0' }}>+</span> Add Loan
-        </button>
+      {/* LEFT: MANAGEMENT CONTROLLER FORM */}
+      <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+        <h3>{editingId ? 'Modify Loan Terms' : 'Issue New Capital'}</h3>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          
+          <div>
+            <label style={{ display: 'block', marginBottom: '4px' }}>Target Applicant Account</label>
+            <select 
+              value={applicantId} 
+              onChange={e => setApplicantId(e.target.value ? Number(e.target.value) : '')}
+              disabled={!!editingId}
+              style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: editingId ? '#e9ecef' : '#fff' }}
+            >
+              <option value="">-- Choose Profile --</option>
+              {applicants.map(app => (
+                <option key={app.id} value={app.id}>{app.full_name} (ID: {app.id})</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '4px' }}>Principal Capital Amount (\$) *</label>
+            <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }} />
+          </div>
+
+          {editingId && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '4px' }}>Contract Compliance Status</label>
+              <select value={status} onChange={e => setStatus(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
+                <option value="pending">Pending</option>
+                <option value="active">Active</option>
+                <option value="Approved">Approved</option>
+                <option value="Defaulted">Defaulted</option>
+              </select>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+            <button type="submit" style={{ flex: 1, padding: '10px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+              {editingId ? 'Commit Modifications' : 'Disburse Assets'}
+            </button>
+            {editingId && <button type="button" onClick={resetForm} style={{ padding: '10px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Cancel</button>}
+          </div>
+        </form>
       </div>
 
-      <h3 style={{ marginTop: 0, marginBottom: '15px', color: '#333' }}>Active Loan Disbursals</h3>
+      {/* RIGHT: LEDGER INDEX AND SEARCH INTERFACE */}
+      <div style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+          <h3 style={{ margin: 0 }}>Active Portfolio Loans Ledger</h3>
+          <input 
+            type="text" 
+            placeholder="Search by client or compliance status..." 
+            value={searchTerm} 
+            onChange={e => setSearchTerm(e.target.value)} 
+            style={{ padding: '8px 12px', width: '260px', border: '1px solid #ccc', borderRadius: '4px' }} 
+          />
+        </div>
 
-      {/* Ledger Accounts Output Table Display (Hidden Loan ID Column) */}
-      {loading && filteredLoans.length === 0 ? (
-        <p>Updating financial parameters summary fields...</p>
-      ) : filteredLoans.length === 0 ? (
-        <p style={{ color: '#666', fontStyle: 'italic' }}>
-          {searchTerm ? 'No loans match your search parameter criteria.' : 'No active loan documents assigned. Click the button above to add a configuration.'}
-        </p>
-      ) : (
-        <table className="table-container" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ background: '#f1f1f1', borderBottom: '2px solid #ddd' }}>
-              <th style={{ padding: '12px 10px' }}>Borrower</th>
-              <th style={{ padding: '12px 10px' }}>Principal Capital</th>
-              <th style={{ padding: '12px 10px' }}>Rate Balance</th>
-              <th style={{ padding: '12px 10px' }}>Amortization Term</th>
-              <th style={{ padding: '12px 10px' }}>Status</th>
-              <th style={{ padding: '12px 10px' }}>Issued Date</th>
-              <th style={{ padding: '12px 10px', textAlign: 'right' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredLoans.map(loan => {
-              const clientMatch = applicants.find(a => a.id === loan.applicantId);
-              return (
-                <tr key={loan.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px 10px', fontWeight: '500', color: '#007bff' }}>
-                    {clientMatch ? clientMatch.name : 'Unknown/Archived Profile'}
-                    {clientMatch && <div style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>{clientMatch.email}</div>}
-                  </td>
-                  <td style={{ padding: '12px 10px', fontWeight: 'bold' }}>${loan.amount.toLocaleString()}</td>
-                  <td style={{ padding: '12px 10px' }}>{loan.interestRate}%</td>
-                  <td style={{ padding: '12px 10px' }}>{loan.durationMonths} Months</td>
-                  <td style={{ padding: '12px 10px' }}>
+        {loading ? (
+          <div>Analyzing database records...</div>
+        ) : filteredLoans.length === 0 ? (
+          <div style={{ color: '#6c757d', textAlign: 'center', padding: '20px' }}>No contractual loan records located.</div>
+        ) : (
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ borderBottom: '2px solid #dee2e6', background: '#f8f9fa' }}>
+                <th style={{ padding: '10px' }}>Contract ID</th>
+                <th style={{ padding: '10px' }}>Applicant</th>
+                <th style={{ padding: '10px' }}>Issued Value</th>
+                <th style={{ padding: '10px' }}>Status</th>
+                <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredLoans.map((loan) => (
+                <tr key={loan.id} style={{ borderBottom: '1px solid #dee2e6' }}>
+                  <td style={{ padding: '10px', color: '#6c757d' }}>#00{loan.id}</td>
+                  <td style={{ padding: '10px', fontWeight: 'bold' }}>{loan.applicant_name || `Applicant ID: ${loan.applicant_id}`}</td>
+                  <td style={{ padding: '10px', color: '#28a745', fontWeight: '500' }}>\${Number(loan.amount).toLocaleString()}</td>
+                  <td style={{ padding: '10px' }}>
                     <span style={{
-                      padding: '4px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold',
-                      backgroundColor: loan.status === 'Approved' ? '#d4edda' : loan.status === 'Pending' ? '#fff3cd' : loan.status === 'Fully Paid' ? '#cce5ff' : '#f8d7da',
-                      color: loan.status === 'Approved' ? '#155724' : loan.status === 'Pending' ? '#856404' : loan.status === 'Fully Paid' ? '#004085' : '#721c24'
+                      padding: '3px 8px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold',
+                      background: loan.status === 'Defaulted' ? '#f8d7da' : loan.status === 'active' ? '#cce5ff' : '#e2e3e5',
+                      color: loan.status === 'Defaulted' ? '#721c24' : loan.status === 'active' ? '#004085' : '#383d41'
                     }}>
                       {loan.status}
                     </span>
                   </td>
-                  <td style={{ padding: '12px 10px', color: '#666' }}>{loan.issuedDate}</td>
-                  <td style={{ padding: '12px 10px', textAlign: 'right' }}>
-                    <button onClick={() => handleEditInit(loan)} style={{ marginRight: '6px', padding: '5px 10px', background: '#ffc107', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Modify</button>
-                    <button onClick={() => handleDelete(loan.id)} style={{ padding: '5px 10px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}>Void</button>
+                  <td style={{ padding: '10px', textAlign: 'right', display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                    <button onClick={() => startEdit(loan)} style={{ padding: '4px 8px', background: '#ffc107', color: '#212529', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Edit</button>
+                    <button onClick={() => handleDelete(loan.id)} style={{ padding: '4px 8px', background: '#dc3545', color: '#fff', border: 'none', borderRadius: '3px', cursor: 'pointer' }}>Delete</button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-      {/* ==========================================================================
-         LOAN APPLICATION OVERLAY POPUP MODAL SCREEN
-         ========================================================================== */}
-      {isModalOpen && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)', width: '100%', maxWidth: '480px', position: 'relative' }}>
-            
-            <h3 style={{ marginTop: 0, marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>
-              {isEditing ? 'Modify Loan Configuration' : 'Disburse New Loan Package'}
-            </h3>
-            
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Target Borrower Profile</label>
-                <select value={applicantId} onChange={e => setApplicantId(e.target.value)} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} required>
-                  <option value="">-- Select Applicant --</option>
-                  {applicants.map(applicant => (        
-                    <option key={applicant.id} value={applicant.id}>
-                        {applicant.name} ({applicant.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Principal Loan Amount</label>
-                    <input type="number" placeholder="10000" value={amount} onChange={e => setAmount(e.target.value)} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} required />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Interest Rate</label>
-                    <input type="number" placeholder="5" value={interestRate} onChange={e => setInterestRate(e.target.value)} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} required />
-                </div>  
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>  
-
-                    <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Amortization Duration (Months)</label>
-                    <input type="number" placeholder="12" value={durationMonths} onChange={e => setDurationMonths(e.target.value)} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} required />
-                </div>  
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 'bold' }}>Loan Status</label>
-                    <select value={status} onChange={e => setStatus(e.target.value as Loan['status'])} style={{ padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }} required>
-                        <option value="Pending">Pending</option>
-                        <option value="Approved">Approved</option>
-                        <option value="Fully Paid">Fully Paid</option>
-                        <option value="Defaulted">Defaulted</option>
-                    </select>
-                </div>  
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '10px' }}>   
-                    <button type="button" onClick={resetForm} style={{ padding: '10px 16px', background: '#6c757d', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                        Cancel
-                    </button>
-                    <button type="submit" disabled={loading} style={{ padding: '10px 20px', background: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>    
-
-                        {isEditing ? 'Save Changes' : 'Confirm Disbursal'}
-                    </button>
-                </div>  
-            </form>
-          </div>
-        </div>  
-        )}  
     </div>
-    );
+  );
 };

@@ -25,37 +25,39 @@ export interface AuthContextType {
 // Represents an individual applicant registered under a Loan Officer
 // Replace the Applicant interface block inside src/types/loanSystem.ts
 export interface Applicant {
-  id: string;
-  officerId: string; // Links this applicant to a specific Loan Officer
-  name: string;
-  email: string;
-  phone: string;
-  livingLocation: string; 
-  occupation: string;     
-  sex: 'Male' | 'Female' | 'Other'; 
-  relationStatus: 'Single' | 'Married' | 'Divorced' | 'Widowed'; // New field
-  createdAt: string; // Format: YYYY-MM-DD
+  id: number;
+  full_name: string; 
+  phone?: string;
+  living_location?: string;
+  occupation?: string;
+  sex?: 'Male' | 'Female' | 'Other';
+  relationship_status?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  user_id?: number;
+  created_at?: string;
 }
 
 // Details a capital loan package assigned to an applicant
 export interface Loan {
-  id: string;
-  officerId: string; // Ensures account-level isolation for data segregation
-  applicantId: string; // Links back to the structural Applicant entity
+  id: number;
+  applicant_id: number;
+  applicant_name?: string; 
   amount: number;
-  interestRate: number; // Stored as a flat integer/float percentage value (e.g., 12.5 for 12.5%)
-  durationMonths: number;
-  status: 'Pending' | 'Approved' | 'Fully Paid' | 'Defaulted';
-  issuedDate: string; // Format: YYYY-MM-DD
+  status: 'pending' | 'active' | 'Approved' | 'Defaulted' | string;
+  created_at: string;      
+  user_id?: number;
 }
+
 
 // Captures a transactional installment repayment history item
 export interface Repayment {
-  id: string;
-  officerId: string;
-  loanId: string;
-  amountPaid: number;
-  paymentDate: string; // Format: YYYY-MM-DD
+  id: number;
+  loan_id: number;
+  applicant_name?: string;       
+  amount_paid: number;           
+  original_loan_amount?: number; 
+  amount_left?: number;         
+  payment_date: string;         
+  user_id?: number;
 }
 
 // ==========================================
