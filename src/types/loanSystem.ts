@@ -64,11 +64,32 @@ export interface Repayment {
 // SYSTEM ANALYTICS Kpis
 // ==========================================
 
-// Aggregated values computed dynamically on the Dashboard header module
+// 1. BASE MODULE: Aggregated total metrics across the history of the app
 export interface DashboardStats {
   totalApplicants: number;
   totalLoansIssued: number;
-  totalVolume: number; // Sum total principal capital issued
-  totalCollected: number; // Cumulative sum of all repayment logs
+  totalVolume: number;        // Cumulative sum of principal capital issued
+  totalCollected: number;     // Cumulative sum of all repayment logs
   pendingCollections: number; // Remaining outstanding balance exposure
+}
+
+// 2. EXTENDED MODULE: Deep, real-time analytics mapped from Postgres DATE_TRUNC subqueries
+export interface AdvancedDashboardStats extends DashboardStats {
+  // Time-based Loan Analytics
+  loaned_this_year: number;
+  loaned_this_month: number;
+  loaned_this_week: number;
+  loaned_today: number;
+
+  // Time-based Repayment Analytics
+  collected_this_year: number;
+  collected_this_month: number;
+  collected_today: number;
+  collected_this_week: number;
+
+  // Specific Relational Counts
+  total_applicants: number;
+  pending_loans_count: number;
+  active_loans_count: number;
+  total_outstanding_balance: number;
 }
