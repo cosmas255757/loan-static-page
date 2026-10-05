@@ -34,11 +34,7 @@ interface AdvancedDashboardStats {
     totalLoaned: number;
     totalCollected: number;
   };
-  chartData: {
-    labels: string[];
-    loaningRates: number[];
-    repaymentRates: number[];
-  };
+
 }
 
 const MainDashboardLayout: React.FC = () => {
@@ -52,7 +48,6 @@ const MainDashboardLayout: React.FC = () => {
     box2: { today: 0, week: 0, month: 0, year: 0 },
     box3: { today: 0, week: 0, month: 0, year: 0 },
     box4: { collectionRate: 0, outstandingRate: 0, totalLoaned: 0, totalCollected: 0 },
-    chartData: { labels: [], loaningRates: [], repaymentRates: [] }
   });
 
   const evaluateMetrics = async () => {
@@ -148,7 +143,6 @@ const MainDashboardLayout: React.FC = () => {
         box2: { today: loanedToday, week: loanedWeek, month: loanedMonth, year: loanedYear },
         box3: { today: paidToday, week: paidWeek, month: paidMonth, year: paidYear },
         box4: { collectionRate, outstandingRate, totalLoaned: totalLoanedSum, totalCollected: totalCollectedSum },
-        chartData: { labels, loaningRates, repaymentRates }
       });
 
     } catch (err) {
@@ -160,7 +154,7 @@ const MainDashboardLayout: React.FC = () => {
 
   useEffect(() => {
     if (currentUser) evaluateMetrics();
-  }, [currentUser, activeTab]);
+  }, [currentUser])
 
   if (!currentUser) {
     return (
