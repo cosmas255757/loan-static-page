@@ -27,7 +27,7 @@ export const apiService = {
   // ==========================================
   getApplicants: async (): Promise<Applicant[]> => {
     // Maps to: GET /api/applicants
-    const res = await fetch(`${API_BASE_URL}/applicants`, {
+    const res = await fetch(`${API_BASE_URL}/api/applicants`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
@@ -36,7 +36,7 @@ export const apiService = {
 
   saveApplicant: async (applicant: Applicant, isEdit: boolean): Promise<void> => {
     // Maps to: POST /api/applicants OR PUT /api/applicants/:id
-    const url = isEdit ? `${API_BASE_URL}/applicants/${applicant.id}` : `${API_BASE_URL}/applicants`;
+    const url = isEdit ? `${API_BASE_URL}/api/applicants/${applicant.id}` : `${API_BASE_URL}/api/applicants`;
     const res = await fetch(url, {
       method: isEdit ? 'PUT' : 'POST',
       headers: getAuthHeaders(),
@@ -47,7 +47,7 @@ export const apiService = {
 
   deleteApplicant: async (id: string): Promise<void> => {
     // Maps to: DELETE /api/applicants/:id
-    const res = await fetch(`${API_BASE_URL}/applicants/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/applicants/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -59,7 +59,7 @@ export const apiService = {
   // ==========================================
   getLoans: async (): Promise<Loan[]> => {
     // Maps to: GET /api/loans
-    const res = await fetch(`${API_BASE_URL}/loans`, {
+    const res = await fetch(`${API_BASE_URL}/api/loans`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
@@ -68,7 +68,7 @@ export const apiService = {
 
   saveLoan: async (loan: Loan, isEdit: boolean): Promise<void> => {
     // Maps to: POST /api/loans OR PUT /api/loans/:id
-    const url = isEdit ? `${API_BASE_URL}/loans/${loan.id}` : `${API_BASE_URL}/loans`;
+    const url = isEdit ? `${API_BASE_URL}/api/loans/${loan.id}` : `${API_BASE_URL}/api/loans`;
     const res = await fetch(url, {
       method: isEdit ? 'PUT' : 'POST',
       headers: getAuthHeaders(),
@@ -79,7 +79,7 @@ export const apiService = {
 
   deleteLoan: async (id: string): Promise<void> => {
     // Maps to: DELETE /api/loans/:id
-    const res = await fetch(`${API_BASE_URL}/loans/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/loans/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -91,7 +91,7 @@ export const apiService = {
   // ==========================================
   getRepayments: async (): Promise<Repayment[]> => {
     // Maps to: GET /api/repayments
-    const res = await fetch(`${API_BASE_URL}/repayments`, {
+    const res = await fetch(`${API_BASE_URL}/api/repayments`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
@@ -100,7 +100,7 @@ export const apiService = {
 
   saveRepayment: async (repayment: Repayment, isEdit: boolean): Promise<void> => {
     // Maps to: POST /api/repayments OR PUT /api/repayments/:id
-    const url = isEdit ? `${API_BASE_URL}/repayments/${repayment.id}` : `${API_BASE_URL}/repayments`;
+    const url = isEdit ? `${API_BASE_URL}/api/repayments/${repayment.id}` : `${API_BASE_URL}/api/repayments`;
     const res = await fetch(url, {
       method: isEdit ? 'PUT' : 'POST',
       headers: getAuthHeaders(),
@@ -111,7 +111,7 @@ export const apiService = {
 
   deleteRepayment: async (id: string): Promise<void> => {
     // Maps to: DELETE /api/repayments/:id
-    const res = await fetch(`${API_BASE_URL}/repayments/${id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
     });
@@ -123,7 +123,7 @@ export const apiService = {
   // ==========================================
   getDashboardMetrics: async (): Promise<DashboardStats> => {
     // FIXED: Changed endpoint from `${API_BASE_URL}/dashboard` to point to your actual backend geometry
-    const res = await fetch(`${API_BASE_URL}/stats/dashboard`, {
+    const res = await fetch(`${API_BASE_URL}/api/stats/dashboard`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
