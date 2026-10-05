@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { Login } from './components/Auth/Login';
@@ -8,30 +8,8 @@ import { LoansCRUD } from './components/Dashboard/LoansCRUD';
 import { RepaymentsCRUD } from './components/Dashboard/RepaymentsCRUD';
 import { apiService } from './services/api';
 
-// Chart JS Extensions Configuration
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler
-);
+// Dynamic Lazy Load for the chart component to optimize LCP speed
+const DashboardChart = lazy(() => import('./components/Dashboard/DashboardChart'));
 
 // Internal Extended Dashboard Metrics Schema
 interface AdvancedDashboardStats {
@@ -84,15 +62,21 @@ const MainDashboardLayout: React.FC = () => {
     if (!currentUser) return;
     setLoading(true);
     try {
-      const applicants = await apiService.getApplicants();
-      const loans = await apiService.getLoans();
-      const repayments = await apiService.getRepayments();
+      // 💡 FIX: Safely fallback to an empty array [] if backend crashes or returns an error object
+      const rawApplicants = await apiService.getApplicants();
+      const rawLoans = await apiService.getLoans();
+      const rawRepayments = await apiService.getRepayments();
+
+      const applicants = Array.isArray(rawApplicants) ? rawApplicants : [];
+      const loans = Array.isArray(rawLoans) ? rawLoans : [];
+      const repayments = Array.isArray(rawRepayments) ? rawRepayments : [];
 
       const now = new Date();
       const formatToday = now.toISOString().split('T')[0];
 
       // Helper function to detect if a specific date falls within this week
       const isThisWeek = (dateStr: string) => {
+        if (!dateStr) return false;
         const target = new Date(dateStr);
         const startOfWeek = new Date(now);
         startOfWeek.setDate(now.getDate() - now.getDay());
@@ -104,12 +88,13 @@ const MainDashboardLayout: React.FC = () => {
       const currentYear = now.getFullYear();
 
       // --- BOX 1 CALCULATIONS ---
-      const overdueLoans = loans.filter(l => l.status === 'Defaulted');
+      const overdueLoans = loans.filter(l => l && l.status === 'Defaulted');
       const overduePercent = applicants.length > 0 ? (overdueLoans.length / applicants.length) * 100 : 0;
 
       // --- BOX 2 CALCULATIONS (LOANS) ---
       let loanedToday = 0, loanedWeek = 0, loanedMonth = 0, loanedYear = 0;
       loans.forEach(l => {
+        if (!l) return;
         const d = new Date(l.issuedDate);
         if (l.issuedDate === formatToday) loanedToday += l.amount;
         if (isThisWeek(l.issuedDate)) loanedWeek += l.amount;
@@ -120,6 +105,7 @@ const MainDashboardLayout: React.FC = () => {
       // --- BOX 3 CALCULATIONS (REPAYMENTS) ---
       let paidToday = 0, paidWeek = 0, paidMonth = 0, paidYear = 0;
       repayments.forEach(r => {
+        if (!r) return;
         const d = new Date(r.paymentDate);
         if (r.paymentDate === formatToday) paidToday += r.amountPaid;
         if (isThisWeek(r.paymentDate)) paidWeek += r.amountPaid;
@@ -128,8 +114,8 @@ const MainDashboardLayout: React.FC = () => {
       });
 
       // --- BOX 4 CALCULATIONS (%) ---
-      const totalLoanedSum = loans.reduce((sum, l) => sum + l.amount, 0);
-      const totalCollectedSum = repayments.reduce((sum, r) => sum + r.amountPaid, 0);
+      const totalLoanedSum = loans.reduce((sum, l) => sum + (l?.amount || 0), 0);
+      const totalCollectedSum = repayments.reduce((sum, r) => sum + (r?.amountPaid || 0), 0);
       const collectionRate = totalLoanedSum > 0 ? (totalCollectedSum / totalLoanedSum) * 100 : 0;
       const outstandingRate = Math.max(0, 100 - collectionRate);
 
@@ -144,20 +130,22 @@ const MainDashboardLayout: React.FC = () => {
         labels.push(mLabel);
 
         const mLoans = loans.filter(l => {
+          if (!l) return false;
           const d = new Date(l.issuedDate);
           return d.getMonth() === tempDate.getMonth() && d.getFullYear() === tempDate.getFullYear();
         });
         const mRepayments = repayments.filter(r => {
+          if (!r) return false;
           const d = new Date(r.paymentDate);
           return d.getMonth() === tempDate.getMonth() && d.getFullYear() === tempDate.getFullYear();
         });
 
-        loaningRates.push(mLoans.reduce((sum, l) => sum + l.amount, 0));
-        repaymentRates.push(mRepayments.reduce((sum, r) => sum + r.amountPaid, 0));
+        loaningRates.push(mLoans.reduce((sum, l) => sum + (l?.amount || 0), 0));
+        repaymentRates.push(mRepayments.reduce((sum, r) => sum + (r?.amountPaid || 0), 0));
       }
 
       setMetrics({
-        box1: { totalApplicants: applicants.length, activeLoans: loans.filter(l => l.status === 'Approved').length, overdueApplicants: overdueLoans.length, overduePercentage: overduePercent },
+        box1: { totalApplicants: applicants.length, activeLoans: loans.filter(l => l && l.status === 'Approved').length, overdueApplicants: overdueLoans.length, overduePercentage: overduePercent },
         box2: { today: loanedToday, week: loanedWeek, month: loanedMonth, year: loanedYear },
         box3: { today: paidToday, week: paidWeek, month: paidMonth, year: paidYear },
         box4: { collectionRate, outstandingRate, totalLoaned: totalLoanedSum, totalCollected: totalCollectedSum },
@@ -165,7 +153,7 @@ const MainDashboardLayout: React.FC = () => {
       });
 
     } catch (err) {
-      console.error(err);
+      console.error("API Evaluation Failed: ", err);
     } finally {
       setLoading(false);
     }
@@ -186,29 +174,6 @@ const MainDashboardLayout: React.FC = () => {
       </div>
     );
   }
-
-  // Chart UI Data Structure Setup
-  const graphDataConfig = {
-    labels: metrics.chartData.labels,
-    datasets: [
-      {
-        label: 'Disbursement Volume ($)',
-        data: metrics.chartData.loaningRates,
-        borderColor: '#007bff',
-        backgroundColor: 'rgba(0, 123, 255, 0.1)',
-        tension: 0.3,
-        fill: true,
-      },
-      {
-        label: 'Collected Capital ($)',
-        data: metrics.chartData.repaymentRates,
-        borderColor: '#28a745',
-        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-        tension: 0.3,
-        fill: true,
-      }
-    ]
-  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'Arial, sans-serif' }}>
@@ -275,12 +240,18 @@ const MainDashboardLayout: React.FC = () => {
                 </div>
 
                 {/* --- LIVE LINE GRAPH SYSTEM PANEL --- */}
-                <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '6px', border: '1px solid #ddd' }}>
-                  <h4 style={{ marginTop: 0, marginBottom: '15px' }}>Financial Volume Issuance vs Remittance Rates</h4>
-                  <div style={{ width: '100%', height: '350px', position: 'relative' }}>
-                    <Line data={graphDataConfig} options={{ responsive: true, maintainAspectRatio: false }} />
+                  <div className="dashboard-graph-card" style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                    <h3>Financial Performance Trends</h3>
+                    
+                    {/* ⚡ Suspense prevents Chart.js from freezing the initial layout thread */}
+                    <Suspense fallback={<div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6c757d' }}>Loading visual analytics...</div>}>
+                      <DashboardChart 
+                        labels={metrics.chartData.labels}
+                        loaningRates={metrics.chartData.loaningRates}
+                        repaymentRates={metrics.chartData.repaymentRates}
+                      />
+                    </Suspense>
                   </div>
-                </div>
               </div>
             )}
           </div>
