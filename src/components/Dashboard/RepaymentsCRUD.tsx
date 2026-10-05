@@ -144,7 +144,7 @@ export const RepaymentsCRUD: React.FC = () => {
         </div>
       </div>
 
-      {/* FULL WIDTH LEDGER WORKSPACE TABLE */}
+            {/* FULL WIDTH LEDGER WORKSPACE TABLE */}
       <div style={{ background: '#fff', borderRadius: '8px', border: '1px solid #dee2e6', boxShadow: '0 2px 4px rgba(0,0,0,0.02)', overflow: 'hidden' }}>
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#28a745' }}>Analyzing database records...</div>
@@ -155,9 +155,9 @@ export const RepaymentsCRUD: React.FC = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #dee2e6', background: '#f8f9fa', color: '#495057' }}>
-                  <th style={{ padding: '14px 16px', fontWeight: '600' }}>Receipt ID</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Client Name</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Amount Paid</th>
+                  <th style={{ padding: '14px 16px', fontWeight: '600' }}>Amount Left</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Contract Ref</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Clearing Date</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600', textAlign: 'right' }}>Actions Workspace</th>
@@ -172,6 +172,9 @@ export const RepaymentsCRUD: React.FC = () => {
                     </td>
                     <td style={{ padding: '14px 16px', color: '#28a745', fontWeight: '600' }}>
                       TSH {Number(repayment.amount_paid).toLocaleString()}
+                    </td>
+                    <td style={{ padding: '14px 16px', color: '#dc3545', fontWeight: '600' }}>
+                      TSH {Number(repayment.amount_left).toLocaleString()}
                     </td>
                     <td style={{ padding: '14px 16px', color: '#007bff', fontWeight: '500' }}>
                       Contract #{repayment.loan_id}
@@ -200,6 +203,7 @@ export const RepaymentsCRUD: React.FC = () => {
           </div>
         )}
       </div>
+
       {/* OVERLAY MODAL: TRANSACTION COLLECTIONS MANAGEMENT PANEL */}
       {isModalOpen && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1050 }}>
