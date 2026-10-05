@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { Login } from './components/Auth/Login';
@@ -7,9 +7,6 @@ import { ApplicantsCRUD } from './components/Dashboard/ApplicantsCRUD';
 import { LoansCRUD } from './components/Dashboard/LoansCRUD';
 import { RepaymentsCRUD } from './components/Dashboard/RepaymentsCRUD';
 import { apiService } from './services/api';
-
-// Dynamic Lazy Load for the chart component to optimize LCP speed
-const DashboardChart = lazy(() => import('./components/Dashboard/DashboardChart'));
 
 // Internal Extended Dashboard Metrics Schema
 interface AdvancedDashboardStats {
@@ -241,19 +238,7 @@ const MainDashboardLayout: React.FC = () => {
                   
                 </div>
 
-                {/* --- LIVE LINE GRAPH SYSTEM PANEL --- */}
-                  <div className="dashboard-graph-card" style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
-                    <h3>Financial Performance Trends</h3>
-                    
-                    {/* ⚡ Suspense prevents Chart.js from freezing the initial layout thread */}
-                    <Suspense fallback={<div style={{ height: '350px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6c757d' }}>Loading visual analytics...</div>}>
-                      <DashboardChart 
-                        labels={metrics.chartData.labels}
-                        loaningRates={metrics.chartData.loaningRates}
-                        repaymentRates={metrics.chartData.repaymentRates}
-                      />
-                    </Suspense>
-                  </div>
+                
               </div>
             )}
           </div>
