@@ -165,7 +165,6 @@ export const LoansCRUD: React.FC = () => {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid #dee2e6', background: '#f8f9fa', color: '#495057' }}>
-                  <th style={{ padding: '14px 16px', fontWeight: '600' }}>Contract ID</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Applicant Name</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Issued Value</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Compliance Status</th>
@@ -175,7 +174,6 @@ export const LoansCRUD: React.FC = () => {
               <tbody>
                 {filteredLoans.map((loan) => (
                   <tr key={loan.id} style={{ borderBottom: '1px solid #eee', transition: 'background 0.15s' }}>
-                    <td style={{ padding: '14px 16px', color: '#6c757d' }}>#00{loan.id}</td>
                     <td style={{ padding: '14px 16px', fontWeight: '600', color: '#212529' }}>
                       {loan.applicant_name || `Applicant ID: ${loan.applicant_id}`}
                     </td>
