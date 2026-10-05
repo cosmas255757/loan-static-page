@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import { Login } from './components/Auth/Login';
 import { Register } from './components/Auth/Register';
@@ -41,18 +40,30 @@ export const MainDashboardLayout: React.FC = () => {
   });
 
   // 🚀 CLEAN & BULLETPROOF METRICS: Directly consumes pre-calculated server variables
-  const evaluateMetrics = async () => {
+   const evaluateMetrics = async () => {
     if (!currentUser) return;
     setLoading(true);
     try {
       const response = await apiService.getDashboardMetrics();
       
-      // If backend sends it wrapped in a wrapper like { success: true, data: ... }
-      if (response && response.success && response.data) {
-        setMetrics(response.data);
-      } else if (response && response.box1) {
-        // Fallback fallback if response is flat object layout
-        setMetrics(response as unknown as AdvancedDashboardStats);
+      // 🚀 FIXED: Directly verify and use the flat DashboardStats object
+      if (response) {
+        setMetrics({
+          box1: {
+            totalApplicants: response.totalApplicants || 0,
+            activeLoans: response.totalLoansIssued || 0,
+            overdueApplicants: 0,
+            overduePercentage: 0
+          },
+          box2: { today: 0, week: 0, month: 0, year: response.totalVolume || 0 },
+          box3: { today: 0, week: 0, month: 0, year: response.totalCollected || 0 },
+          box4: {
+            collectionRate: 0,
+            outstandingRate: 0,
+            totalLoaned: response.totalVolume || 0,
+            totalCollected: response.pendingCollections || 0
+          }
+        });
       }
     } catch (err) {
       console.error("Failed syncing aggregated metrics payload:", err);
@@ -60,6 +71,7 @@ export const MainDashboardLayout: React.FC = () => {
       setLoading(false);
     }
   };
+
 
   // ⚡ Runs only when mounting or when user session shifts
   useEffect(() => {
