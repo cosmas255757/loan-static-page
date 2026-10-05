@@ -66,8 +66,7 @@ export const apiService = {
   // ==========================================
   // LOANS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-
-  // 1. GET ALL LOANS (Unpacks object structure safely)
+  // 1. GET ALL LOANS (100% Correct - accurately matches your { count, loans } wrapping envelope)
   getLoans: async (): Promise<{ count: number; loans: Loan[] }> => {
     const res = await fetch(`${API_BASE_URL}/api/loans`, {
       method: 'GET',
@@ -76,8 +75,8 @@ export const apiService = {
     return handleResponse(res);
   },
 
-  // 2. DISBURSE A NEW LOAN
-  createLoan: async (loan: { applicant_id: number; amount: number }): Promise<void> => {
+  // 2. DISBURSE A NEW LOAN (Updated to Promise<any> to safely receive success data object)
+  createLoan: async (loan: { applicant_id: number; amount: number }): Promise<any> => {
     const res = await fetch(`${API_BASE_URL}/api/loans`, {
       method: 'POST',
       headers: getAuthHeaders(),
@@ -86,8 +85,8 @@ export const apiService = {
     return handleResponse(res);
   },
 
-  // 3. EDIT OUTSTANDING LOAN CONTRACT
-  updateLoan: async (id: number, loan: { amount: number; status: string }): Promise<void> => {
+  // 3. EDIT OUTSTANDING LOAN CONTRACT (Updated to Promise<any> to safely receive update data object)
+  updateLoan: async (id: number, loan: { amount: number; status: string }): Promise<any> => {
     const res = await fetch(`${API_BASE_URL}/api/loans/${id}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
@@ -96,8 +95,8 @@ export const apiService = {
     return handleResponse(res);
   },
 
-  // 4. DROP LOAN AGREEMENT 
-  deleteLoan: async (id: number): Promise<void> => {
+  // 4. DROP LOAN AGREEMENT (Updated to Promise<any> to safely unpack delete completion object)
+  deleteLoan: async (id: number): Promise<any> => {
     const res = await fetch(`${API_BASE_URL}/api/loans/${id}`, {
       method: 'DELETE',
       headers: getAuthHeaders()
@@ -105,10 +104,11 @@ export const apiService = {
     return handleResponse(res);
   },
 
+
   // ==========================================
   // REPAYMENTS BACKEND CONTROLLER INJECTIONS
   // ==========================================
-    // 1. GET ALL REPAYMENTS
+        // 1. GET ALL REPAYMENTS (100% Correct - matches your backend wrapping envelope exactly)
     getRepayments: async (): Promise<{ count: number; repayments: Repayment[] }> => {
       const res = await fetch(`${API_BASE_URL}/api/repayments`, {
         method: 'GET',
@@ -117,8 +117,8 @@ export const apiService = {
       return handleResponse(res);
     },
 
-    // 2. CREATE A REPAYMENT RECORD
-    createRepayment: async (repayment: { loan_id: number; amount_paid: number; payment_date: string }): Promise<void> => {
+    // 2. CREATE A REPAYMENT RECORD (Updated to Promise<any> to safely unpack success message & metrics)
+    createRepayment: async (repayment: { loan_id: number; amount_paid: number; payment_date: string }): Promise<any> => {
       const res = await fetch(`${API_BASE_URL}/api/repayments`, {
         method: 'POST',
         headers: getAuthHeaders(),
@@ -127,8 +127,8 @@ export const apiService = {
       return handleResponse(res);
     },
 
-    // 3. EDIT REPAYMENT TRANSACTION
-    updateRepayment: async (id: number, repayment: { amount_paid: number; payment_date: string }): Promise<void> => {
+    // 3. EDIT REPAYMENT TRANSACTION (Updated to Promise<any> to handle incoming replacement row payload)
+    updateRepayment: async (id: number, repayment: { amount_paid: number; payment_date: string }): Promise<any> => {
       const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
@@ -137,14 +137,15 @@ export const apiService = {
       return handleResponse(res);
     },
 
-    // 4. DROP REPAYMENT LOG
-    deleteRepayment: async (id: number): Promise<void> => {
+    // 4. DROP REPAYMENT LOG (Updated to Promise<any> to unpack the deleted verification payload)
+    deleteRepayment: async (id: number): Promise<any> => {
       const res = await fetch(`${API_BASE_URL}/api/repayments/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });
       return handleResponse(res);
     },
+
 
   // ==========================================
   // DASHBOARD ADVANCED CHRONOLOGICAL STATISTICS
