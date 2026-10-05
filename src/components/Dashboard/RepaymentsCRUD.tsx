@@ -158,7 +158,6 @@ export const RepaymentsCRUD: React.FC = () => {
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Client Name</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Amount Paid</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Amount Left</th>
-                  <th style={{ padding: '14px 16px', fontWeight: '600' }}>Contract Ref</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Clearing Date</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600', textAlign: 'right' }}>Actions Workspace</th>
                 </tr>
