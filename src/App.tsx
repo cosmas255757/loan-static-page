@@ -163,3 +163,5 @@ export const MainDashboardLayout: React.FC = () => {
     </div>
   );
 };
+
+export default MainDashboardLayout;
