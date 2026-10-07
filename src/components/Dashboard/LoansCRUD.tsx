@@ -167,6 +167,7 @@ export const LoansCRUD: React.FC = () => {
                 <tr style={{ borderBottom: '2px solid #dee2e6', background: '#f8f9fa', color: '#495057' }}>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Applicant Name</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Issued Value</th>
+                  <th style={{ padding: '14px 16px', fontWeight: '600' }}>Contract Date</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600' }}>Compliance Status</th>
                   <th style={{ padding: '14px 16px', fontWeight: '600', textAlign: 'right' }}>Actions Workspace</th>
                 </tr>
@@ -179,6 +180,9 @@ export const LoansCRUD: React.FC = () => {
                     </td>
                     <td style={{ padding: '14px 16px', color: '#28a745', fontWeight: '600' }}>
                       TZS {Number(loan.amount).toLocaleString()}
+                    </td>
+                    <td style={{ padding: '14px 16px' }}>
+                      {loan.created_at ? new Date(loan.created_at).toLocaleDateString() : 'N/A'}
                     </td>
                     <td style={{ padding: '14px 16px' }}>
                       <span style={getStatusBadgeStyle(loan.status)}>
