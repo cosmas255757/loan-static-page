@@ -259,7 +259,7 @@ export const MainDashboardLayout: React.FC = () => {
         position: 'absolute',
         top: '70px', 
         right: 0,
-        width: '30%',
+        width: '50%',
         backgroundColor: 'transparent',
         borderBottom: '1px solid #dee2e6',
         flexDirection: 'column',
