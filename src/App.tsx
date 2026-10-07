@@ -6,6 +6,7 @@ import { ApplicantsCRUD } from './components/Dashboard/ApplicantsCRUD';
 import { LoansCRUD } from './components/Dashboard/LoansCRUD';
 import { RepaymentsCRUD } from './components/Dashboard/RepaymentsCRUD';
 import { apiService } from './services/api';
+import { PublicPage } from './components/public';
 
 // Internal Extended Dashboard Metrics Schema (Matches Backend Postgres Stats Output Exactly)
 interface AdvancedDashboardStats {
@@ -24,6 +25,7 @@ interface AdvancedDashboardStats {
 }
 
 export const MainDashboardLayout: React.FC = () => {
+  const [currentView, setCurrentView] = useState<'public' | 'login' | 'dashboard'>('public');
   const { currentUser, logoutUser } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'applicants' | 'loans' | 'repayments'>('dashboard');
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
@@ -80,23 +82,35 @@ export const MainDashboardLayout: React.FC = () => {
     }
   };
 
-
   // ⚡ Runs only when mounting or when user session logs in
   useEffect(() => {
     if (currentUser) evaluateMetrics();
   }, [currentUser]);
 
-  if (!currentUser) {
+  // View 1: Public Welcome Page
+  if (currentView === 'public') {
+    return <PublicPage onNavigateToLogin={() => setCurrentView('login')} />;
+  }
+
+  // View 2: Authentication Wall (Shows if user is logged out OR explicitly clicked login)
+  if (!currentUser || currentView === 'login') {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#f4f6f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {authView === 'login' ? (
-          <Login onSwitchToRegister={() => setAuthView('register')} />
+          <Login 
+            onSwitchToRegister={() => setAuthView('register')} 
+            onBackToHome={() => setCurrentView('public')} 
+          />
         ) : (
-          <Register onSwitchToLogin={() => setAuthView('login')} />
+          <Register 
+            onSwitchToLogin={() => setAuthView('login')} 
+            onBackToHome={() => setCurrentView('public')} 
+          />
         )}
       </div>
     );
   }
+
 
   // Handle dashboard sub-tabs workspace conditionally
   const renderTabContent = () => {
