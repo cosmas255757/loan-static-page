@@ -188,28 +188,32 @@ export const MainDashboardLayout: React.FC = () => {
       <header style={{ 
         backgroundColor: '#fff', 
         borderBottom: '1px solid #dee2e6', 
-        padding: '15px 20px', 
+        padding: '12px max(10px, 2vw)', 
         display: 'flex', 
+        flexDirection: 'row',
         justifyContent: 'space-between', 
         alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '15px'
+        gap: '10px',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
-        <div style={{ minWidth: '200px' }}>
-          <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Loan Officer Portal</h2>
-          <small>Active Account: <strong>{currentUser.name}</strong></small>
+        <div style={{ flexShrink: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 'max(16px, 1.2vw)', whiteSpace: 'nowrap' }}>Loan Officer Portal</h2>
+          <small style={{ fontSize: 'max(10px, 0.8vw)', display: 'block' }}>Active Account: <strong>{currentUser.name}</strong></small>
         </div>
         <nav style={{ 
           display: 'flex', 
-          gap: '8px', 
-          flexWrap: 'wrap',
-          alignItems: 'center'
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 'max(4px, 0.5vw)', 
+          flexWrap: 'nowrap',
+          maxWidth: '70%'
         }}>
-          <button onClick={() => setActiveTab('dashboard')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Dashboard</button>
-          <button onClick={() => setActiveTab('applicants')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>User Management</button>
-          <button onClick={() => setActiveTab('loans')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Loans</button>
-          <button onClick={() => setActiveTab('repayments')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Repayments</button>
-          <button onClick={logoutUser} style={{ padding: '8px 14px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
+          <button onClick={() => setActiveTab('dashboard')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Dashboard</button>
+          <button onClick={() => setActiveTab('applicants')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>User Management</button>
+          <button onClick={() => setActiveTab('loans')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Loans</button>
+          <button onClick={() => setActiveTab('repayments')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Repayments</button>
+          <button onClick={logoutUser} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Logout</button>
         </nav>
       </header>
 
