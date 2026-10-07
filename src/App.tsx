@@ -185,19 +185,34 @@ export const MainDashboardLayout: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'Arial, sans-serif' }}>
-      <header style={{ backgroundColor: '#fff', borderBottom: '1px solid #dee2e6', padding: '15px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ margin: 0 }}>Loan Officer Portal</h2>
+      <header style={{ 
+        backgroundColor: '#fff', 
+        borderBottom: '1px solid #dee2e6', 
+        padding: '15px 20px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <div style={{ minWidth: '200px' }}>
+          <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Loan Officer Portal</h2>
           <small>Active Account: <strong>{currentUser.name}</strong></small>
         </div>
-        <nav style={{ display: 'flex', gap: '8px' }}>
+        <nav style={{ 
+          display: 'flex', 
+          gap: '8px', 
+          flexWrap: 'wrap',
+          alignItems: 'center'
+        }}>
           <button onClick={() => setActiveTab('dashboard')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Dashboard</button>
           <button onClick={() => setActiveTab('applicants')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>User Management</button>
           <button onClick={() => setActiveTab('loans')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Loans</button>
           <button onClick={() => setActiveTab('repayments')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' }}>Repayments</button>
-          <button onClick={logoutUser} style={{ padding: '8px 14px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px' }}>Logout</button>
+          <button onClick={logoutUser} style={{ padding: '8px 14px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Logout</button>
         </nav>
-      </header> 
+      </header>
+
               <main style={{ padding: '20px' }}>
         {loading && activeTab === 'dashboard' ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#6c757d' }}>
