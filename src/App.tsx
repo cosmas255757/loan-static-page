@@ -28,6 +28,7 @@ export const MainDashboardLayout: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'applicants' | 'loans' | 'repayments'>('dashboard');
   const [authView, setAuthView] = useState<'login' | 'register'>('login');
   const [loading, setLoading] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = React.useState<boolean>(false);
 
   // Initialize state with flawless schema structures
   const [metrics, setMetrics] = useState<AdvancedDashboardStats>({
@@ -184,38 +185,97 @@ export const MainDashboardLayout: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'Arial, sans-serif', position: 'relative' }}>
+      {/* Global CSS Injector to handle pure responsive display rules */}
+      <style>{`
+        /* Desktop Defaults */
+        .desktop-nav { display: flex !important; }
+        .mobile-hamburger { display: none !important; }
+        .mobile-dropdown { display: none !important; }
+
+        /* Mobile Screens (Phones and Tablets) */
+        @media (max-width: 768px) {
+          .desktop-nav { display: none !important; }
+          .mobile-hamburger { display: flex !important; }
+          .mobile-dropdown { display: ${isMenuOpen ? 'flex' : 'none'} !important; }
+        }
+      `}</style>
+
       <header style={{ 
         backgroundColor: '#fff', 
         borderBottom: '1px solid #dee2e6', 
-        padding: '12px max(10px, 2vw)', 
+        padding: '12px 20px', 
         display: 'flex', 
         flexDirection: 'row',
         justifyContent: 'space-between', 
         alignItems: 'center',
-        gap: '10px',
         width: '100%',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        position: 'relative',
+        zIndex: 10
       }}>
         <div style={{ flexShrink: 0 }}>
-          <h2 style={{ margin: 0, fontSize: 'max(16px, 1.2vw)', whiteSpace: 'nowrap' }}>Loan Officer Portal</h2>
-          <small style={{ fontSize: 'max(10px, 0.8vw)', display: 'block' }}>Active Account: <strong>{currentUser.name}</strong></small>
+          <h2 style={{ margin: 0, fontSize: '1.3rem', whiteSpace: 'nowrap' }}>Loan Officer Portal</h2>
+          <small style={{ fontSize: '0.85rem', display: 'block' }}>Active Account: <strong>{currentUser.name}</strong></small>
         </div>
-        <nav style={{ 
-          display: 'flex', 
-          flexDirection: 'row',
+
+        {/* 1. COMPUTER NAVIGATION (Hidden on mobile) */}
+        <nav className="desktop-nav" style={{ 
           alignItems: 'center',
-          gap: 'max(4px, 0.5vw)', 
-          flexWrap: 'nowrap',
-          maxWidth: '70%'
+          gap: '8px', 
+          flexWrap: 'nowrap'
         }}>
-          <button onClick={() => setActiveTab('dashboard')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Dashboard</button>
-          <button onClick={() => setActiveTab('applicants')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>User Management</button>
-          <button onClick={() => setActiveTab('loans')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Loans</button>
-          <button onClick={() => setActiveTab('repayments')} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Repayments</button>
-          <button onClick={logoutUser} style={{ padding: '6px max(6px, 0.8vw)', fontSize: 'max(11px, 0.9vw)', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap', flex: '1 1 auto' }}>Logout</button>
+          <button onClick={() => setActiveTab('dashboard')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Dashboard</button>
+          <button onClick={() => setActiveTab('applicants')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}>User Management</button>
+          <button onClick={() => setActiveTab('loans')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Loans</button>
+          <button onClick={() => setActiveTab('repayments')} style={{ padding: '8px 14px', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Repayments</button>
+          <button onClick={logoutUser} style={{ padding: '8px 14px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', whiteSpace: 'nowrap' }}>Logout</button>
         </nav>
+
+        {/* 2. THREE LINES HAMBURGER BUTTON (Hidden on computer) */}
+        <button 
+          className="mobile-hamburger" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          style={{
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            width: '24px',
+            height: '18px',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
+            boxSizing: 'border-box'
+          }}
+        >
+          <span style={{ width: '100%', height: '3px', backgroundColor: '#333', borderRadius: '2px' }}></span>
+          <span style={{ width: '100%', height: '3px', backgroundColor: '#333', borderRadius: '2px' }}></span>
+          <span style={{ width: '100%', height: '3px', backgroundColor: '#333', borderRadius: '2px' }}></span>
+        </button>
       </header>
+
+      {/* 3. MOBILE MENU DROPDOWN (Pops open on mobile when three lines are clicked) */}
+      <nav className="mobile-dropdown" style={{
+        position: 'absolute',
+        top: '70px', 
+        right: 0,
+        width: '30%',
+        backgroundColor: 'transparent',
+        borderBottom: '1px solid #dee2e6',
+        flexDirection: 'column',
+        padding: '10px 20px',
+        gap: '10px',
+        boxSizing: 'border-box',
+        zIndex: 5,
+        boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.05)'
+      }}>
+        <button onClick={() => { setActiveTab('dashboard'); setIsMenuOpen(false); }} style={{ padding: '10px', backgroundColor: activeTab === 'dashboard' ? '#007bff' : '#f8f9fa', color: activeTab === 'dashboard' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>Dashboard</button>
+        <button onClick={() => { setActiveTab('applicants'); setIsMenuOpen(false); }} style={{ padding: '10px', backgroundColor: activeTab === 'applicants' ? '#007bff' : '#f8f9fa', color: activeTab === 'applicants' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>User Management</button>
+        <button onClick={() => { setActiveTab('loans'); setIsMenuOpen(false); }} style={{ padding: '10px', backgroundColor: activeTab === 'loans' ? '#007bff' : '#f8f9fa', color: activeTab === 'loans' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>Loans</button>
+        <button onClick={() => { setActiveTab('repayments'); setIsMenuOpen(false); }} style={{ padding: '10px', backgroundColor: activeTab === 'repayments' ? '#007bff' : '#f8f9fa', color: activeTab === 'repayments' ? '#fff' : '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>Repayments</button>
+        <button onClick={() => { logoutUser(); setIsMenuOpen(false); }} style={{ padding: '10px', backgroundColor: '#dc3545', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', width: '100%', textAlign: 'left' }}>Logout</button>
+      </nav>
+
 
               <main style={{ padding: '20px' }}>
         {loading && activeTab === 'dashboard' ? (
