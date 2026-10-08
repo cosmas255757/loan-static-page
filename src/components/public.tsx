@@ -56,14 +56,7 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onNavigateToLogin }) => 
             At Captain Microfinance, we offer premium business credit facilities, strategic investment partnerships, and transactional advisory tools for buying and selling local enterprises.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', flexWrap: 'wrap' }}>
-            <a 
-              href="https://wa.me." 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ padding: '14px 28px', backgroundColor: '#25D366', color: '#fff', textDecoration: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}
-            >
-              Chat via WhatsApp
-            </a>
+
             <button 
               onClick={onNavigateToLogin}
               style={{ padding: '14px 28px', backgroundColor: '#fff', color: '#0056b3', border: 'none', borderRadius: '6px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer' }}

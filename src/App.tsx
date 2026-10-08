@@ -84,22 +84,36 @@ export const MainDashboardLayout: React.FC = () => {
 
   // ⚡ Runs only when mounting or when user session logs in
   useEffect(() => {
-    if (currentUser) evaluateMetrics();
+    if (currentUser)
+      evaluateMetrics();
+     setCurrentView('dashboard');
   }, [currentUser]);
 
-  // View 1: Public Welcome Page
+  // View 1: Public Welcome Page (Forces landing view explicitly first)
   if (currentView === 'public') {
-    return <PublicPage onNavigateToLogin={() => setCurrentView('login')} />;
+    return <PublicPage onNavigateToLogin={() => {
+      // If a user is already logged in, skip the login wall and go straight to the dashboard
+      if (currentUser) {
+        setCurrentView('dashboard');
+      } else {
+        setCurrentView('login');
+      }
+    }} />;
   }
 
-  // View 2: Authentication Wall (Shows if user is logged out OR explicitly clicked login)
-  if (!currentUser || currentView === 'login') {
+  // View 2: Authentication Wall (Only triggers if currentView is explicitly set to 'login')
+  if (currentView === 'login') {
+    if (currentUser) {
+      setCurrentView('dashboard');
+    }
+
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#f4f6f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {authView === 'login' ? (
           <Login 
-            onSwitchToRegister={() => setAuthView('register')} 
             onBackToHome={() => setCurrentView('public')} 
+            onSwitchToRegister={() => setAuthView('register')} 
+            onLoginSuccess={() => setCurrentView('dashboard')}
           />
         ) : (
           <Register 
@@ -107,6 +121,19 @@ export const MainDashboardLayout: React.FC = () => {
             onBackToHome={() => setCurrentView('public')} 
           />
         )}
+      </div>
+    );
+  }
+
+  // View 3: Protected Security Check (If they try to force look at dashboard views without active tokens)
+  if (!currentUser && currentView === 'dashboard') {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#f4f6f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Login 
+          onBackToHome={() => setCurrentView('public')} 
+          onSwitchToRegister={() => setAuthView('register')} 
+          onLoginSuccess={() => setCurrentView('dashboard')}
+        />
       </div>
     );
   }
@@ -230,7 +257,7 @@ export const MainDashboardLayout: React.FC = () => {
       }}>
         <div style={{ flexShrink: 0 }}>
           <h2 style={{ margin: 0, fontSize: '1.3rem', whiteSpace: 'nowrap' }}>Loan Officer Portal</h2>
-          <small style={{ fontSize: '0.85rem', display: 'block' }}>Active Account: <strong>{currentUser.name}</strong></small>
+          <small style={{ fontSize: '0.85rem', display: 'block' }}>Active Account: <strong>{currentUser?.name}</strong></small>
         </div>
 
         {/* 1. COMPUTER NAVIGATION (Hidden on mobile) */}

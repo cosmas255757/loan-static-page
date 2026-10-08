@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { type LoanOfficer } from '../../types/loanSystem';
 
 interface RegisterProps {
   onSwitchToLogin: () => void;
-  onBackToHome: () => void; // 👈 Safely integrated into your code contract schema
+  onBackToHome: () => void;
 }
 
 export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHome }) => {
@@ -16,42 +15,64 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage('');
+    setIsSubmitting(true);
 
     if (!name || !email || !password || !confirmPassword) {
       setErrorMessage('Please completely fill out all required profile information boxes.');
+      setIsSubmitting(false);
       return;
     }
+    
     // Check if the passwords match
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match. Please re-enter your password.');
+      setIsSubmitting(false);
       return;
     }
-    // Prepare type-safe object payloads linked to a unique programmatic tracker ID
-    const newOfficerPayload: LoanOfficer & { password?: string } = {
-      id: 'off_' + Date.now(),
-      name: name,
-      email: email,
-      password: password
-    };
 
-    // Forward package downstream to core state machine context array
-    const result = await registerUser(newOfficerPayload);
+    try {
+      // 🌟 PERFECT ALIGNMENT WITH CONTROLLER: Send full_name inside the JSON package
+      const registrationPayload = {
+        full_name: name,
+        email: email,
+        password: password
+      };
 
-    if (!result.success) {
-      setErrorMessage(result.message || 'Registration failed.');
+      // Forward package downstream to core auth context array
+      const result = await registerUser(registrationPayload as any);
+
+      if (!result.success) {
+        setErrorMessage(result.message || 'Registration failed.');
+      }
+    } catch (error) {
+      console.error("Registration crash intercept:", error);
+      setErrorMessage('A database network error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '60px auto', padding: '30px', border: '1px solid #ccc', borderRadius: '8px', backgroundColor: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%' }}>
-      <h2 style={{ marginTop: 0, marginBottom: '20px', textAlign: 'center' }}>Create Officer Account</h2>
+    <div style={{ 
+      boxSizing: 'border-box',
+      width: '92%', 
+      maxWidth: '400px', 
+      margin: '40px auto', 
+      padding: 'max(20px, 3vw)', 
+      border: '1px solid #dee2e6', 
+      borderRadius: '8px', 
+      backgroundColor: '#fff', 
+      boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+    }}>
+      <h2 style={{ marginTop: 0, marginBottom: '20px', textAlign: 'center', color: '#212529', fontSize: '1.6rem', fontWeight: '700' }}>Create Officer Account</h2>
       
       {errorMessage && (
-        <div style={{ padding: '10px', marginBottom: '15px', color: '#721c24', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '4px', fontSize: '14px' }}>
+        <div style={{ padding: '10px', marginBottom: '15px', color: '#721c24', backgroundColor: '#f8d7da', border: '1px solid #f5c6cb', borderRadius: '4px', fontSize: '14px', wordBreak: 'break-word' }}>
           {errorMessage}
         </div>
       )}
@@ -64,7 +85,8 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
             placeholder="Officer Captain" 
             value={name} 
             onChange={(e) => setName(e.target.value)} 
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px', width: '100%', boxSizing: 'border-box' }}
+            disabled={isSubmitting}
             required 
           />
         </div>
@@ -76,7 +98,8 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
             placeholder="captain@company.com" 
             value={email} 
             onChange={(e) => setEmail(e.target.value)} 
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px', width: '100%', boxSizing: 'border-box' }}
+            disabled={isSubmitting}
             required 
           />
         </div>
@@ -88,7 +111,8 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
             placeholder="Minimum 6 characters" 
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px', width: '100%', boxSizing: 'border-box' }}
+            disabled={isSubmitting}
             required 
           />
         </div>
@@ -100,24 +124,44 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
             placeholder="Re-enter your password" 
             value={confirmPassword} 
             onChange={(e) => setConfirmPassword(e.target.value)} 
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px' }}
+            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '14px', width: '100%', boxSizing: 'border-box' }}
+            disabled={isSubmitting}
             required 
           />
         </div>
 
         <button 
           type="submit" 
-          style={{ padding: '12px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', fontSize: '15px' }}
+          disabled={isSubmitting}
+          style={{ 
+            padding: '12px', 
+            background: isSubmitting ? '#7cb98a' : '#28a745', 
+            color: '#fff', 
+            border: 'none', 
+            borderRadius: '4px', 
+            fontWeight: 'bold', 
+            cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+            marginTop: '10px', 
+            fontSize: '15px',
+            width: '100%',
+            transition: 'background 0.2s',
+            boxSizing: 'border-box'
+          }}
         >
-          Register & Sign In
+          {isSubmitting ? 'Creating Account...' : 'Register & Sign In'}
         </button>
       </form>
 
-      {/* Modern Unified Navigation Helper Area */}
+      {/* Navigation Helper Area */}
       <div style={{ marginTop: '25px', textAlign: 'center', fontSize: '14px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <span 
-          style={{ color: '#007bff', cursor: 'pointer', textDecoration: 'underline', fontWeight: '500' }} 
-          onClick={onSwitchToLogin}
+          style={{ 
+            color: isSubmitting ? '#6c757d' : '#007bff', 
+            cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+            textDecoration: 'underline', 
+            fontWeight: '500' 
+          }} 
+          onClick={() => !isSubmitting && onSwitchToLogin()}
         >
           Already registered? Log in instead
         </span>
@@ -125,8 +169,16 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin, onBackToHom
         <hr style={{ border: 0, borderBottom: '1px solid #dee2e6', margin: '4px 0' }} />
         
         <span 
-          style={{ color: '#6c757d', cursor: 'pointer', fontSize: '13px', fontWeight: '600', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} 
-          onClick={onBackToHome}
+          style={{ 
+            color: '#6c757d', 
+            cursor: isSubmitting ? 'not-allowed' : 'pointer', 
+            fontSize: '13px', 
+            fontWeight: '600', 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            justifyContent: 'center' 
+          }} 
+          onClick={() => !isSubmitting && onBackToHome()}
         >
           ← Back to Main Public Page
         </span>
