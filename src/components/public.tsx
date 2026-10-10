@@ -223,30 +223,115 @@ export const PublicPage: React.FC<PublicPageProps> = ({ onNavigateToLogin }) => 
         </div>
       </section>
 
-      {/* 6. PUBLIC CONTACT DIRECTORY */}
-      <section style={{ maxWidth: '850px', margin: '0 auto', padding: '60px 20px', textAlign: 'center' }}>
-        <h2 style={{ fontSize: '1.8rem', marginBottom: '30px', fontWeight: '700' }}>Get in Touch With Us</h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px' }}>
-          <div style={{ padding: '20px', border: '1px solid #dee2e6', borderRadius: '6px', minWidth: '220px', backgroundColor: '#fff' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>📞 Voice Call</div>
-            <a href="tel:+255622571211" style={{ color: '#007bff', fontWeight: 'bold', textDecoration: 'none' }}>+255 622 571 211</a>
+      {/* 6. PUBLIC FOOTER */}
+     <footer style={{ 
+  backgroundColor: '#0f172a', 
+  color: '#94a3b8', 
+  borderTop: '1px solid #334155', 
+  padding: '60px 20px 30px 20px', 
+  fontFamily: 'system-ui, -apple-system, sans-serif'
+}}>
+  <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+    
+    {/* UPPER FOOTER GRID SECTION */}
+    <div style={{ 
+      display: 'grid', 
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+      gap: '40px', 
+      marginBottom: '50px',
+      textAlign: 'left'
+    }}>
+      
+      {/* COLUMN 1: BRAND IDENTITY */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <h3 style={{ color: '#fff', fontSize: '1.4rem', fontWeight: '800', margin: 0, letterSpacing: '-0.5px' }}>
+          Captain <span style={{ color: '#38bdf8' }}>Microfinance</span>
+        </h3>
+        <p style={{ fontSize: '13px', lineHeight: '1.6', margin: 0, color: '#94a3b8' }}>
+          Empowering student ventures and driving local growth through digital fintech acceleration strategies.
+        </p>
+      </div>
+
+      {/* COLUMN 2: QUICK CHANNELS */}
+      <div>
+        <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 16px 0' }}>
+          Direct Channels
+        </h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          
+          {/* Voice Connection */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.2rem' }}>📞</span>
+            <div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>VOICE CALL</div>
+              <a href="tel:+255622571211" style={{ color: '#38bdf8', fontWeight: '600', textDecoration: 'none', fontSize: '14px' }}>
+                +255 622 571 211
+              </a>
+            </div>
           </div>
-          <div style={{ padding: '20px', border: '1px solid #dee2e6', borderRadius: '6px', minWidth: '220px', backgroundColor: '#fff' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>💬 WhatsApp</div>
-            <a href="https://wa.me" target="_blank" rel="noopener noreferrer" style={{ color: '#28a745', fontWeight: 'bold', textDecoration: 'none' }}>+255 757 956 611</a>
+
+          {/* WhatsApp Connection */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.2rem' }}>💬</span>
+            <div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>WHATSAPP CHAT</div>
+              <a href="https://wa.me" target="_blank" rel="noopener noreferrer" style={{ color: '#4ade80', fontWeight: '600', textDecoration: 'none', fontSize: '14px' }}>
+                +255 757 956 611
+              </a>
+            </div>
           </div>
-          <div style={{ padding: '20px', border: '1px solid #dee2e6', borderRadius: '6px', minWidth: '220px', backgroundColor: '#fff' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>✉️ Official Email</div>
-            <a href="mailto:cosmasssamwel2023@gmail.com" style={{ color: '#007bff', fontWeight: 'bold', textDecoration: 'none', fontSize: '13px' }}>cosmasssamwel2023@gmail.com</a>
+
+        </div>
+      </div>
+
+      {/* COLUMN 3: CORRESPONDENCE ADDRESS */}
+      <div>
+        <h4 style={{ color: '#fff', fontSize: '0.9rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '1px', margin: '0 0 16px 0' }}>
+          Official Correspondence
+        </h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '14px' }}>
+          <span style={{ fontSize: '1.2rem' }}>✉️</span>
+          <div>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: '600' }}>EMAIL INQUIRIES</div>
+            <a href="mailto:cosmasssamwel2023@gmail.com" style={{ color: '#38bdf8', fontWeight: '600', textDecoration: 'none', fontSize: '13px' }}>
+              cosmasssamwel2023@gmail.com
+            </a>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 7. PUBLIC FOOTER */}
-      <footer style={{ backgroundColor: '#fff', borderTop: '1px solid #dee2e6', padding: '30px 20px', textAlign: 'center', color: '#6c757d', fontSize: '14px' }}>
-        <p style={{ margin: '0 0 10px 0' }}>&copy; {new Date().getFullYear()} Captain Microfinance. All rights reserved.</p>
-        <p style={{ margin: 0, fontSize: '12px', opacity: 0.7 }}>A MUST Student Entrepreneurial Fintech Initiative</p>
-      </footer>
+    </div>
+
+    {/* BOTTOM METRICS & LEGAL ROW */}
+    <div style={{ 
+      borderTop: '1px solid #334155', 
+      paddingTop: '30px', 
+      display: 'flex', 
+      flexWrap: 'wrap', 
+      justifyContent: 'space-between', 
+      alignItems: 'center',
+      gap: '16px',
+      fontSize: '13px'
+    }}>
+      <p style={{ margin: 0, color: '#64748b' }}>
+        &copy; {new Date().getFullYear()} <strong>Captain Microfinance</strong>. All rights reserved.
+      </p>
+      <div style={{ 
+        backgroundColor: '#1e293b', 
+        padding: '6px 14px', 
+        borderRadius: '20px', 
+        fontSize: '12px', 
+        fontWeight: '600', 
+        color: '#cbd5e1',
+        border: '1px solid #334155'
+      }}>
+        A MUST Student Entrepreneurial Fintech Initiative
+      </div>
+    </div>
+
+  </div>
+</footer>
+
     </div>
   );
 };

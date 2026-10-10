@@ -86,7 +86,7 @@ export const MainDashboardLayout: React.FC = () => {
   useEffect(() => {
     if (currentUser)
       evaluateMetrics();
-     setCurrentView('dashboard');
+     setCurrentView('public');
   }, [currentUser]);
 
   // View 1: Public Welcome Page (Forces landing view explicitly first)
@@ -101,7 +101,7 @@ export const MainDashboardLayout: React.FC = () => {
     }} />;
   }
 
-  // View 2: Authentication Wall (Only triggers if currentView is explicitly set to 'login')
+  // View 2: Authentication Wall 
   if (currentView === 'login') {
     if (currentUser) {
       setCurrentView('dashboard');
